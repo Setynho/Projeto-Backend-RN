@@ -1,6 +1,6 @@
 from database.conexao import engine, Base
 # Importamos os modelos para que a Base saiba quais tabelas devem ser criadas
-from database.modelos import Cliente, Unidade, CardapioLocal
+from database.modelos import Cliente, Unidade, Produto, CardapioLocal
 
 print("Iniciando a criação das tabelas no banco de dados...")
 
