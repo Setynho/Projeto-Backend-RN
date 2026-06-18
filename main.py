@@ -4,6 +4,7 @@ from database.conexao import obter_banco
 from database.modelos import CardapioLocal
 from pydantic import BaseModel, EmailStr
 from database.modelos import Cliente
+from pydantic import BaseModel
 
 # Inicializa a aplicação FastAPI
 app = FastAPI(title="API Rede Raízes do Nordeste", version="1.0.0")
@@ -56,3 +57,27 @@ def cadastrar_cliente(cliente_dados: ClienteCadastro, banco: Session = Depends(o
     banco.refresh(novo_cliente)
     
     return {"mensagem": "Cliente cadastrado com sucesso!", "id_cliente": novo_cliente.id}
+
+
+# 1. Modelo de envio para simular o recebimento do pagamento do gateway
+class ConfirmacaoPagamento(BaseModel):
+    pedido_id: int
+    status_transacao: str  # Deve ser 'sucesso' ou 'recusado'
+
+# 2. Endpoint de Simulação do Gateway Desacoplado (Atende ao RF03)
+@app.post("/api/v1/pagamentos/webhook")
+def processar_webhook_pagamento(dados: ConfirmacaoPagamento):
+    # Simulando o recebimento da resposta assíncrona da operadora de cartão
+    if dados.status_transacao.lower() == "sucesso":
+        # Na lógica real, aqui buscaríamos o pedido no banco SQL e faríamos um UPDATE
+        return {
+            "status": "Transacao Aprovada",
+            "pedido_id": dados.pedido_id,
+            "mensagem": "Status do pedido atualizado para 'Pago' com sucesso no banco SQL."
+        }
+    else:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Pagamento do pedido {dados.pedido_id} foi recusado pela operadora externa."
+        )
+
