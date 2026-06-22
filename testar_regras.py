@@ -1,14 +1,14 @@
 from database.conexao import obter_banco
 from database.modelos import Cliente
 
-# 1. Abre a sessão do banco de dados usando o nosso gerenciador
+# Abre a sessão do banco de dados usando o nosso gerenciador
 banco_gerenciador = obter_banco()
 banco = next(banco_gerenciador)
 
 print("\n--- Iniciando testes de regras de negócio ---")
 
 try:
-    # 2. Criando um cliente que aceitou os termos da LGPD (Cenário Válido)
+    # Criando um cliente que aceitou os termos da LGPD (Cenário Válido)
     novo_cliente_valido = Cliente(
         nome="Ruan Silva",
         email="ruan@email.com",
@@ -20,7 +20,7 @@ try:
     banco.commit()
     print(f"Sucesso: Cliente '{novo_cliente_valido.nome}' inserido com consentimento LGPD.")
 
-    # 3. Fazendo um SELECT (Busca) para comprovar a gravação
+    # Fazendo um SELECT (Busca) para comprovar a gravação
     cliente_salvo = banco.query(Cliente).filter_by(email="ruan@email.com").first()
     print(f"Verificação no Banco -> ID: {cliente_salvo.id} | LGPD Aceito: {cliente_salvo.consentimento_lgpd}")
 
@@ -29,6 +29,6 @@ except Exception as erro:
     print(f"Erro ao processar operações no banco: {erro}")
 
 finally:
-    # 4. Fecha a conexão com o banco com segurança
+    # Fecha a conexão com o banco com segurança
     next(banco_gerenciador, None)
     print("Conexão com o banco de dados fechada com segurança.\n")

@@ -9,15 +9,15 @@ from pydantic import BaseModel
 # Inicializa a aplicação FastAPI
 app = FastAPI(title="API Rede Raízes do Nordeste", version="1.0.0")
 
-# 1. Rota de Boas-Vindas (Status do Sistema)
+# Rota de Boas-Vindas (Status do Sistema)
 @app.get("/")
 def ler_raiz():
     return {"status": "Online", "empresa": "Rede Raízes do Nordeste - Ecossistema Digital"}
 
-# 2. Rota para Listar o Cardápio de uma Unidade (Atende ao RF01 e RNF02)
+# Rota para Listar o Cardápio de uma Unidade
 @app.get("/api/v1/unidades/{unidade_id}/cardapio")
 def listar_cardapio_unidade(unidade_id: int, banco: Session = Depends(obter_banco)):
-    # Faz uma busca no banco SQL filtrando pela unidade informada na URL
+    #Faz uma busca no banco SQL filtrando pela unidade informada na URL
     itens_cardapio = banco.query(CardapioLocal).filter(CardapioLocal.unidade_id == unidade_id).all()
     
     if not itens_cardapio:
@@ -29,7 +29,7 @@ class ClienteCadastro(BaseModel):
     email: str
     consentimento_lgpd: bool
 
-# 2. Rota para Cadastrar Cliente (Atende ao RF02)
+# Rota para Cadastrar Cliente
 @app.post("/api/v1/clientes", status_code=201)
 def cadastrar_cliente(cliente_dados: ClienteCadastro, banco: Session = Depends(obter_banco)):
     
@@ -45,7 +45,7 @@ def cadastrar_cliente(cliente_dados: ClienteCadastro, banco: Session = Depends(o
     if email_existente:
         raise HTTPException(status_code=400, detail="Este e-mail ja esta cadastrado no sistema.")
         
-    # Se passou pelas validações, cria o objeto e salva no banco SQL
+    # Cria o objeto e salva no banco SQL
     novo_cliente = Cliente(
         nome=cliente_dados.nome,
         email=cliente_dados.email,
@@ -59,12 +59,12 @@ def cadastrar_cliente(cliente_dados: ClienteCadastro, banco: Session = Depends(o
     return {"mensagem": "Cliente cadastrado com sucesso!", "id_cliente": novo_cliente.id}
 
 
-# 1. Modelo de envio para simular o recebimento do pagamento do gateway
+# Modelo de envio para simular o recebimento do pagamento do gateway
 class ConfirmacaoPagamento(BaseModel):
     pedido_id: int
     status_transacao: str  # Deve ser 'sucesso' ou 'recusado'
 
-# 2. Endpoint de Simulação do Gateway Desacoplado (Atende ao RF03)
+# Endpoint de Simulação do Gateway Desacoplado
 @app.post("/api/v1/pagamentos/webhook")
 def processar_webhook_pagamento(dados: ConfirmacaoPagamento):
     # Simulando o recebimento da resposta assíncrona da operadora de cartão
